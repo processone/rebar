@@ -184,13 +184,24 @@ boot_files(TargetDir, Ver, Name) ->
           filename:join([TargetDir, "releases", Ver, "start_clean.boot"]),
           filename:join([".", ?TMP, "releases", Ver, "start_clean.boot"])),
 
-    {ok, _} = file:copy(
-                filename:join([TargetDir, "releases", Ver, "sys.config"]),
-                filename:join([".", ?TMP, "releases", Ver, "sys.config"])),
+    case file:copy(
+           filename:join([TargetDir, "releases", Ver, "sys.config"]),
+           filename:join([".", ?TMP, "releases", Ver, "sys.config"])) of
+        {ok, _} -> ok;
+        {error, E1} ->
+            ?DEBUG("Error:~p when copying sys.config, ignore this if you're using ejabberd. ~n", 
+                   [E1])
+    end,
 
-    {ok, _} = file:copy(
-                filename:join([TargetDir, "releases", Ver, "vm.args"]),
-                filename:join([".", ?TMP, "releases", Ver, "vm.args"])).
+    case file:copy(
+           filename:join([TargetDir, "releases", Ver, "vm.args"]),
+           filename:join([".", ?TMP, "releases", Ver, "vm.args"])) of
+        {ok, _} -> ok;            
+        {error, E2} ->
+            ?DEBUG("Error:~p when copying vm.args, ignore this if you're using ejabberd. ~n", 
+                   [E2])
+    end,
+    ok.
 
 make_tar(NameVer, NewVer, NewName) ->
     Filename = NameVer ++ ".tar.gz",
